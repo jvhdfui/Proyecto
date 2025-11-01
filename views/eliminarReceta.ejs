@@ -1,0 +1,28 @@
+<%- include("templates/encabezado.ejs", { titulo: "Eliminar Receta" }) %>
+
+<h2 class="mb-4">Eliminar Receta</h2>
+
+<% if (recetas.length === 0) { %>
+    <div class="alert alert-info">No hay recetas para eliminar.</div>
+<% } else { %>
+    <div class="row">
+        <% recetas.forEach(function(receta){ %>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <% if(receta.imagen) { %>
+                        <img src="<%= receta.imagen %>" class="card-img-top" alt="<%= receta.nombre %>">
+                    <% } %>
+                    <div class="card-body">
+                        <h5 class="card-title"><%= receta.nombre %></h5>
+                        <p class="card-text">Categoría: <%= receta.categoria %></p>
+                        <form action="/recetas/eliminar/<%= receta._id %>" method="POST" onsubmit="return confirm('¿Seguro que quieres eliminar esta receta?');">
+                            <button type="submit" class="btn btn-danger w-100">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+<% } %>
+
+<%- include("templates/pie.ejs") %>

@@ -1,0 +1,104 @@
+<%- include("templates/encabezado.ejs", {titulo:"Mostrar Recetas"}) %>
+<style>
+body {
+  font-family: 'Open Sans', sans-serif;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-image: url("https://i.pinimg.com/originals/ec/c7/a4/ecc7a4f021aab13bf5197543d291adf7.jpg");
+}
+
+.container {
+    text-align: center;
+}
+
+.titulo-animado h1 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: bold;
+  color: #F257B7;
+  font-size: 60px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  display: inline-block;
+  margin: 10px;
+}
+
+.rev-block {
+  position: relative;
+}
+
+.rev-block span {
+  opacity: 0;
+  animation: appear-text 0.0001s linear forwards;
+  animation-delay: 1.4s;
+}
+
+.rev-block:after {
+  content: '';
+  top: 0;
+  left: 0;
+  position: absolute;
+  width: 0%;
+  height: 100%;
+  background: #00f0b5;
+  animation: rev-block 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  animation-delay: 1s;
+}
+
+#onemore span {
+  animation-delay: 2s;
+}
+
+#onemore.rev-block:after {
+  background: #5e239d;
+  animation-delay: 1.4s;
+}
+
+@keyframes rev-block {
+  0% { left: 0; width: 0%; }
+  50% { left: 0; width: 100%; }
+  100% { left: 100%; width: 0%; }
+}
+
+@keyframes appear-text {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@media only screen and (max-width: 900px) {
+  .titulo-animado h1 {
+    font-size: 28px;
+  }
+}
+</style>
+
+<div class="container my-4" >
+  <div class="titulo-animado">
+    <h1 class="rev-block"><span>Recetas</span></h1>
+  </div>
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    <% contactosBD.forEach(function(receta){ %>
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <% if (receta.imagen) { %>
+            <img src="<%= receta.imagen %>" class="card-img-top" alt="<%= receta.nombre %>">
+          <% } %>
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title"><%= receta.nombre %></h5>
+            <p class="card-text text-muted"><%= receta.categoria %></p>
+
+            <!-- Botón Editar -->
+            <a href="/editar/<%= receta._id %>" class="btn btn-primary mb-2 w-100">Editar</a>
+
+            <!-- Botón Eliminar -->
+            <form action="/eliminarReceta/<%= receta._id %>" method="POST" class="mt-auto">
+              <button type="submit" class="btn btn-danger w-100">Eliminar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+<%- include("templates/pie.ejs") %>
+

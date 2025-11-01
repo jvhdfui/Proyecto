@@ -1,0 +1,162 @@
+<%- include("templates/encabezado.ejs", {titulo:"Agregar Receta"}) %>
+<style>
+    body{
+  font-family: 'Indie Flower', cursive;
+  background-image: url("/fondo2.jpeg");
+  background-repeat: no-repeat;
+  background-attachment: fixed; 
+  background-size: cover;
+  }
+
+  .titulo-animado {
+  text-align: center;
+  margin-top: 60px;
+  position: relative;
+}
+
+.titulo-animado h1 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: bold;
+  color: #D94392;
+  font-size: 60px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  display: inline-block;
+  margin: 10px;
+}
+
+.rev-block {
+  position: relative;
+}
+
+.rev-block span {
+  opacity: 0;
+  animation: appear-text 0.0001s linear forwards;
+  animation-delay: 1.4s;
+}
+
+.rev-block:after {
+  content: '';
+  top: 0;
+  left: 0;
+  position: absolute;
+  width: 0%;
+  height: 100%;
+  background: #00f0b5;
+  animation: rev-block 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  animation-delay: 1s;
+}
+
+#onemore span {
+  animation-delay: 2s;
+}
+
+#onemore.rev-block:after {
+  background: #5e239d;
+  animation-delay: 1.4s;
+}
+
+@keyframes rev-block {
+  0% { left: 0; width: 0%; }
+  50% { left: 0; width: 100%; }
+  100% { left: 100%; width: 0%; }
+}
+
+@keyframes appear-text {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@media only screen and (max-width: 900px) {
+  .titulo-animado h1 {
+    font-size: 28px;
+  }
+}
+
+</style>
+<div class="titulo-animado">
+  <h1 class="rev-block"><span>Compartiendo Cocina</span></h1>
+</div>
+  </head>
+  <body>
+<form action="/agregarReceta" id="formulario" method="POST">
+  <label>Nombre de la receta:</label>
+  <input class="form-control mb-3" type="text" name="nombre" id="nombre" 
+  placeholder="Nombre de la receta">
+
+  <section id="contenedor-ingredientes">
+    <label>Ingredientes:</label>
+    <div id="contenedorIngredientes"> 
+      <input class="form-control mb-3" type="text" name="ingredientes[]" id="ingrediente1" 
+      placeholder="Nombre del ingrediente">
+      <input class="form-control mb-3" type="text" name="ingredientes[]" id="ingrediente2" 
+      placeholder="Nombre del ingrediente">
+
+      <button type="button" id="btnAgregarIngrediente" class="btn btn-outline-primary mb-3">
+                + Agregar otro ingrediente
+      </button>
+    </div>
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const boton = document.getElementById('btnAgregarIngrediente');
+      boton.addEventListener('click', () => {
+        const nuevoInputHTML = `<input class="form-control mb-3" type="text" name="ingredientes[]"
+        placeholder="Nombre del ingrediente">`;
+        boton.insertAdjacentHTML('beforebegin', nuevoInputHTML);
+      });
+    });
+  </script>
+
+  <label>Preparación:</label>
+  <textarea class="form-control mb-3" name="preparacion" id="preparacion" 
+  placeholder="Describe los pasos para preparar la receta (Ennumerados)"></textarea>
+
+  <label>Tiempo de preparación:</label>
+  <input class="form-control mb-3" type="text" name="tiempo" id="tiempo" 
+  placeholder="Ej. 30 min">
+
+  <p>
+    <fieldset>
+      <label>Dificultad:</label>
+      <div>
+        <input type="radio" id="Facil" name="dificultad" value="facil" checked />
+        <label for="Facil">Fácil</label>
+
+        <input type="radio" id="Media" name="dificultad" value="media" checked/>
+        <label for="Media">Media</label>
+
+        <input type="radio" id="Dificil" name="dificultad" value="dificil" checked />
+        <label for="Dificil">Difícil</label>
+      </div>
+    </fieldset>
+  </p>
+
+  <label>Categoría:</label>
+  <select class="form-control mb-3" name="categoria" id="categoria">
+    <option value="Postres">Postres</option>
+    <option value="Bebidas">Bebidas</option>
+    <option value="Platos Principales">Platos Principales</option>
+    <option value="Ensaladas">Ensaladas</option>
+    <option value="Carnes">Carnes</option>
+    <option value="Salsas">Salsas</option>
+    <option value="Sopas">Sopas</option>
+    <option value="Pescados">Pescados</option>
+    <option value="Pastas">Pastas</option>
+    <option value="Comida Rapida">Comida Rápida</option>
+    <option value="Desayunos">Desayunos</option>
+    <option value="Snacks">Snacks</option>
+    <option value="Comida Vegetariana">Comida Vegetariana</option>
+  </select>
+
+  <label>Enlace a un video de YouTube:</label>
+  <input class="form-control mb-3" type="url" name="url_video" id="url_video" 
+  placeholder="Ej. https://www.youtube.com/watch?v=a">
+
+  <button type="submit" class="btn btn-success">Guardar receta</button>
+  <button type="reset" class="btn btn-outline-danger">Borrar</button>
+  <a href="/" class="btn btn-outline-secondary">Home</a>
+</form>
+<%- include("templates/pie.ejs") %>

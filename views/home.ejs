@@ -1,0 +1,227 @@
+<%- include("templates/encabezado.ejs", {titulo:"Inicio"}) %>
+
+<style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-image: url("/fondo3.jpeg");
+    }
+
+    .receta-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #e0e0e0;
+        height: 100%;
+        background: #FFD1D1;  
+    }
+    
+    .receta-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+    
+    .receta-imagen {
+        height: 160px;
+        background: #F94F94;  
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2.5rem;
+    }
+    
+    .categoria {
+        background: #f0e6ff;
+        color: #7F669D;
+        padding: 6px 15px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
+    
+    .btn-ver-mas {
+        background: #B95E82;
+        color: white;
+        border: none;
+    }
+    
+    .btn-ver-mas:hover {
+        background: #6a5585;
+        color: white;
+    }
+    
+    .btn-action {
+        background: #7F669D;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-action:hover {
+        background: #6a5585;
+        transform: translateY(-2px);
+    }
+
+    .titulo-animado {
+      text-align: center;
+      margin-top: 60px;
+      position: relative;
+    }
+
+    .titulo-animado h1 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: bold;
+      color: #D94392;
+      font-size: 60px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      position: relative;
+      display: inline-block;
+      margin: 10px;
+    }
+
+    .rev-block {
+      position: relative;
+    }
+
+    .rev-block span {
+      opacity: 0;
+      animation: appear-text 0.0001s linear forwards;
+      animation-delay: 1.4s;
+    }
+
+    .rev-block:after {
+      content: '';
+      top: 0;
+      left: 0;
+      position: absolute;
+      width: 0%;
+      height: 100%;
+      background: #00f0b5;
+      animation: rev-block 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+      animation-delay: 1s;
+    }
+
+    #onemore span {
+      animation-delay: 2s;
+    }
+
+    #onemore.rev-block:after {
+      background: #5e239d;
+      animation-delay: 1.4s;
+    }
+
+    @keyframes rev-block {
+      0% { left: 0; width: 0%; }
+      50% { left: 0; width: 100%; }
+      100% { left: 100%; width: 0%; }
+    }
+
+    @keyframes appear-text {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @media only screen and (max-width: 900px) {
+      .titulo-animado h1 {
+        font-size: 28px;
+      }
+    }
+</style>
+
+<div class="titulo-animado">
+    <h1 class="rev-block" font-size: 2.5rem;  margin-bottom: 10px; ">Bienvenido a CookLand</h1>
+    <p class="lead"></p>
+</div>
+
+
+<div class="featured-section mb-5">
+    <h2 class="text-center mb-4" style="color: #FF9494;">Recetas Destacadas</h2>
+    
+    <div class="row g-4">
+       
+        <div class="col-md-6 col-lg-3">
+            <div class="card receta-card">
+                <div class="receta-imagen">
+                <img src="/flan.jpg" alt="Flan Casero" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Flan Casero</h5>
+                    <p class="card-text">Un delicioso flan casero con un suave caramelo</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="categoria">Postres</span>
+                        <a href="/agregarReceta" class="btn btn-ver-mas btn-sm">Cocinar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card receta-card">
+                <div class="receta-imagen">
+                <img src="/ensalada_frutas.jpg" alt="Ensalada de Frutas" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Ensalada de Frutas</h5>
+                    <p class="card-text">Una refrescante ensalada con frutas de temporada</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="categoria">Ensaladas</span>
+                        <a href="/mostrarRecetas" class="btn btn-ver-mas btn-sm">Ver Recetas</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card receta-card">
+                <div class="receta-imagen">
+                <img src="/galletas.jpg" alt="Galletas con Chocolate" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Galletas con Chocolate</h5>
+                    <p class="card-text">Crujientes galletas con trozos de chocolate</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="categoria">Postres</span>
+                        <a href="/agregarReceta" class="btn btn-ver-mas btn-sm">Cocinar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    
+        <div class="col-md-6 col-lg-3">
+            <div class="card receta-card">
+                <div class="receta-imagen">
+                <img src="/ponche.jpeg" alt="Ponche Navideño" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Ponche Navideño</h5>
+                    <p class="card-text">Una bebida caliente y festiva con frutas y especias</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="categoria">Bebidas</span>
+                        <a href="/mostrarRecetas" class="btn btn-ver-mas btn-sm">Ver Recetas</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="action-section">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="bg-white p-4 rounded shadow-sm">
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="/agregarReceta" class="btn btn-action">Agregar Nueva Receta</a>
+                    <a href="/mostrarRecetas" class="btn btn-action">Ver Todas las Recetas</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include("templates/pie.ejs") %>
