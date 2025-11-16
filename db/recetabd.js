@@ -56,7 +56,6 @@ export const eliminarReceta = async (id) => {
 export const obtenerRecetasPorCategoria = async (categoria) => {
   try {
     if (!categoria || categoria.trim() === "") {
-      // Si no se escribió nada, devolver todas
       return await Receta.find({});
     }
     return await Receta.find({
@@ -64,6 +63,6 @@ export const obtenerRecetasPorCategoria = async (categoria) => {
     });
   } catch (error) {
     console.error("Error al obtener recetas por categoría:", error);
-    throw error;
-  }
+    throw error;
+  }
 };
