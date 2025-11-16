@@ -41,3 +41,4 @@ const recetaSchema = new mongoose.Schema({
 })
 
 export default mongoose.model("Receta", recetaSchema)
+
