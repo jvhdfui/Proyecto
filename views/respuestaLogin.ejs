@@ -1,0 +1,17 @@
+<%- include("templates/encabezado.ejs", {titulo:"Usuario Registrado"})%>
+<div class="container mt-4">
+    <h1 class="mb-4">Datos del usuario registrado:</h1>
+    <div class="alert alert-primary">
+        <strong>Usuario:</strong> <%= username %>
+    </div>
+    <div class="alert alert-primary">
+        <strong>Email:</strong> <%= email %>
+    </div>
+    <div class="alert alert-primary">
+        <strong>Teléfono:</strong> <%= telefono %>
+    </div>
+    <div class="alert alert-success">
+        <strong>Estado:</strong> Usuario registrado correctamente
+    </div>
+</div>
+<%- include("templates/pie.ejs") %>

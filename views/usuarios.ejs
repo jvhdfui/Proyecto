@@ -1,0 +1,119 @@
+<%- include("templates/encabezado.ejs", {titulo:"Usuarios"}) %>
+<style>
+    body{
+        margin: 11;
+        padding: 10;
+        justify-content: center;
+        align-items: center;
+        text-align:center;
+    }
+    
+    .main{
+        width: 450px;
+        height: 500px;
+        background: pink;
+        overflow: hidden;
+        border-radius: 10px;
+        box-shadow: 5px 20px 50px #000;
+    }
+
+    #chk{
+        display: none;
+    }
+
+    .titulo-animado {
+      text-align: center;
+      margin-top: 60px;
+      position: relative;
+    }
+
+    .titulo-animado h1 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: bold;
+      color: #D94392;
+      font-size: 60px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      position: relative;
+      display: inline-block;
+      margin: 10px;
+    }
+
+    .rev-block {
+      position: relative;
+    }
+
+    .rev-block span {
+      opacity: 0;
+      animation: appear-text 0.0001s linear forwards;
+      animation-delay: 1.4s;
+    }
+
+    .rev-block:after {
+      content: '';
+      top: 0;
+      left: 0;
+      position: absolute;
+      width: 0%;
+      height: 100%;
+      background: #00f0b5; /* Puedes cambiar el color del fondo animado */
+      animation: rev-block 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+      animation-delay: 1s;
+    }
+
+    @keyframes rev-block {
+      0% { left: 0; width: 0%; }
+      50% { left: 0; width: 100%; }
+      100% { left: 100%; width: 0%; }
+    }
+
+    @keyframes appear-text {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @media only screen and (max-width: 900px) {
+      .titulo-animado h1 {
+        font-size: 28px;
+      }
+    }
+
+</style>
+<center>
+<div class="container my-4">
+    <div class="titulo-animado">
+        <h1 class="rev-block"><span>Usuarios</span></h1>
+    </div><br>
+
+    <table border="4" class="table table-bordered">
+        <thead class="table-primary">
+            <tr>
+                <th>Id</th>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (usuarios.length > 0) { %>
+                <% usuarios.forEach(function(u) { %>
+                    <tr>
+                        <td><%= u._id %></td>
+                        <td><%= u.username %></td>
+                        <td><%= u.email %></td>
+                        <td><%= u.telefono %></td>
+                    </tr>
+                <% }); %>
+            <% } else { %>
+                <tr>
+                    <td colspan="5">No hay usuarios registrados en la base de datos</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table><br>
+
+    <a href="/" class="btn btn-outline-danger">Home</a>
+</div>
+</center>
+
+<%- include("templates/pie.ejs") %>
