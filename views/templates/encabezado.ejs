@@ -49,34 +49,33 @@
                         <a class="nav-link active" aria-current="page" href="/">Home</a>
                     </li>
                     <% if (typeof usuario !== 'undefined' && usuario) { %>
+                    
                     <li class="nav-item">
                         <a class="nav-link" href="/mostrarRecetas">Recetas</a>
                     </li>
-
-                    
                         <li class="nav-item">
                             <a class="nav-link" href="/agregarReceta">Agregar recetas</a>
                         </li>
-                        
+                        <li>
+                            <a class="nav-link" href="/perfil">Ver perfil</a>
+                       </li>
                         <% if (usuario.rol === 'admin') { %>
                         <li class="nav-item">
                             <a class="nav-link" href="/usuarios">Usuarios</a>
                         </li>
                         <% } %>
-
                         <li class="nav-item">
                             <a class="nav-link" href="/logout">Cerrar Sesión</a>
                         </li>
                         <li class="nav-item">
                             <span class="nav-link" style="color: #fff; font-weight: normal; font-style: italic;">Hola, <%= usuario.username %></span>
                         </li>
-                        
-                    <% } else { %>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">Login</a>
-                    </li>
-                    <% } %>
-                    </ul>
+                            <% } else { %>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/login">Login</a>
+                            </li>
+                            <% } %>
+                            </ul>
 
                 <form action="/mostrarRecetas" method="GET" class="d-flex mb-4">
                     <input class="form-control me-2" type="search" name="categoria" placeholder="Buscar por categoría" aria-label="Buscar" value="<%= typeof categoria !== 'undefined' ? categoria : '' %>">
