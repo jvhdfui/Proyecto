@@ -1,6 +1,12 @@
 import { Router } from "express";
 import { nuevaReceta, obtenerRecetaPorId, actualizarReceta, obtenerRecetas, eliminarReceta, obtenerRecetasPorCategoria } from "../db/recetabd.js";
-import { nuevoUsuario, buscarUsuarioPorEmail, obtenerUsuarios} from "../db/usuariosbd.js"; 
+import { nuevoUsuario, buscarUsuarioPorEmail, obtenerUsuarios } from "../db/usuariosbd.js"; 
+import verificarSesion from "../middlewares/verificarSesion.js";
+import User from "../models/modelUser.js";
+import subirFoto from "../middlewares/subirFoto.js";
+import fs from "fs";
+import path from "path";
+
 
 const router = Router();
 
@@ -8,6 +14,7 @@ router.get("/", (req, res) => {
     res.render("home", { usuario: req.session.usuario });
 });
 
+//RECETAS
 router.get("/agregarReceta", autenticarUsuario, (req, res) => {
     res.render("agregarReceta", { usuario: req.session.usuario });
 });
@@ -16,15 +23,8 @@ router.post("/agregarReceta", autenticarUsuario, async (req, res) => {
     try {
         const { nombre, ingredientes, preparacion, tiempo, dificultad, categoria, url_video } = req.body;
         const nueva = await nuevaReceta({
-            nombre,
-            ingredientes,
-            preparacion,
-            tiempo,
-            dificultad,
-            categoria,
-            url_video
+            nombre, ingredientes, preparacion, tiempo, dificultad, categoria, url_video
         });
-        console.log("Receta guardada:", nueva);
         res.redirect("/mostrarRecetas"); 
     } catch (error) {
         console.error("Error al guardar receta:", error);
@@ -49,7 +49,6 @@ router.get("/editar/:id", autenticarUsuario, async (req, res) => {
         if (!receta) return res.send("Receta no encontrada");
         res.render("editarReceta", { receta, usuario: req.session.usuario }); 
     } catch (error) {
-        console.error(error);
         res.send("Error al abrir edición");
     }
 });
@@ -60,7 +59,6 @@ router.post("/editar/:id", autenticarUsuario, async (req, res) => {
         if (resultado) return res.redirect("/mostrarRecetas");
         res.send("No se pudo actualizar la receta");
     } catch (error) {
-        console.error(error);
         res.send("Error en actualización");
     }
 });
@@ -70,10 +68,12 @@ router.post("/eliminarReceta/:id", autenticarUsuario, autorizarAdmin, async (req
         await eliminarReceta(req.params.id);
         res.redirect("/mostrarRecetas");
     } catch (error) {
-        console.error(error);
         res.send("Error al eliminar");
     }
 });
+
+//login
+
 
 router.get("/login", (req, res) => {
     res.render("login", { usuario: req.session.usuario });
@@ -81,55 +81,68 @@ router.get("/login", (req, res) => {
 
 router.post("/login", async (req, res) => {
     const { email, pswd } = req.body;
-    
     try {
-        //administrador
+        let dbUsuario = null; 
         if (email === "cookland@gmail.com" && pswd === "$CookLand4") {
-            req.session.usuario = { email, username: "Administrador", rol: 'admin' };
-            console.log("Login exitoso: Administrador");
-            return res.redirect("/mostrarRecetas");
+            dbUsuario = await buscarUsuarioPorEmail(email); 
+
+            if (dbUsuario) {
+                req.session.usuario = { 
+                    email, 
+                    username: "Administrador", 
+                    rol: 'admin', 
+                    userId: dbUsuario._id 
+                };
+                return res.redirect("/");
+            }
         }
-        //usuario normal
-        const dbUsuario = await buscarUsuarioPorEmail(email);
+        if (!dbUsuario) {
+             dbUsuario = await buscarUsuarioPorEmail(email);
+        }
 
         if (dbUsuario && dbUsuario.password === pswd) {
             req.session.usuario = {
                 email: dbUsuario.email,
                 username: dbUsuario.username,
-                rol: 'normal'
+                rol: dbUsuario.rol,
+                userId: dbUsuario._id
             };
-            console.log("Login exitoso");
-            return res.redirect("/mostrarRecetas");
+            return res.redirect("/");
         }
-        console.log("Login fallido: Credenciales incorrectas");
+
         return res.render("home", { 
             mensajeError: "Usuario o contraseña incorrectos", 
             usuario: req.session.usuario 
         });
 
     } catch (error) {
-        console.error("Error en login:", error);
+        console.error("Error en el proceso de login:", error);
         return res.render("home", { 
             mensajeError: "Error en el proceso de login", 
             usuario: req.session.usuario 
         });
     }
-});
+})
+
+
+
+//singup
 
 router.post("/signup", async (req, res) => {
-    const { txt, email, broj, pswd } = req.body;
+    const { txt, email, broj, pswd, nombre, edad } = req.body;
+
     try {
         const guardado = await nuevoUsuario({
             username: txt,
             email,
             telefono: broj,
             password: pswd,
+            edad,        
             rol: 'normal'
         });
-        console.log("Usuario registrado:", guardado);
-        res.render("home")
+
+        res.render("home");
     } catch (error) {
-        console.error("Error al registrar usuario:", error);
         if (error.code === 11000) {
             return res.render("home");
         }
@@ -138,37 +151,28 @@ router.post("/signup", async (req, res) => {
 });
 
 router.get("/logout", (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            console.error("Error al cerrar sesión:", err);
-            return res.send("Error al cerrar sesión");
-        }
+    req.session.destroy(() => {
         res.clearCookie('connect.sid');
         res.redirect("/");
     });
 });
 
-// Verificar acceso a rutas
+
+
+//permisoss
+
 function autenticarUsuario(req, res, next) {
-    if (req.session?.usuario) {
-        next();
-    } else {
-        console.log("Acceso denegado: Usuario no autenticado");
-        res.redirect("/");
-    }
+    if (req.session?.usuario) next();
+    else res.redirect("/");
 }
 
-// Verifica si el usuario es administrador
 function autorizarAdmin(req, res, next) {
-    if (req.session?.usuario?.rol === 'admin') {
-        next();
-    } else {
-        console.log("Acceso denegado, No es administrador");
-        res.redirect("/mostrarRecetas");
-    }
+    if (req.session?.usuario?.rol === 'admin') next();
+    else res.redirect("/mostrarRecetas");
 }
 
-//Mostrar los usuarios existentes
+//Administrador-->lista de usuarios
+
 router.get("/usuarios", autenticarUsuario, autorizarAdmin, async (req, res) => {
     try {
         const listaUsuarios = await obtenerUsuarios();
@@ -177,9 +181,85 @@ router.get("/usuarios", autenticarUsuario, autorizarAdmin, async (req, res) => {
             usuario: req.session.usuario
         });
     } catch (error) {
-        console.error("Error al cargar la lista de usuarios", error);
         res.send("Error interno al cargar la lista de usuarios");
     }
 });
+//PERFIL
+// ver perfil
+router.get("/perfil", verificarSesion, async (req, res) => {
+    const user = await User.findById(req.session.usuario.userId).lean();
+    if (user && !user.foto) {
+        user.foto = "default.png"; 
+    }
+    res.render("vistaPerfil", { 
+        user, 
+        usuario: req.session.usuario
+    });
+});
+
+// formulario para poder editar perfil
+router.get("/perfil/editar/:id", verificarSesion, async (req, res) => {
+    const user = await User.findById(req.params.id).lean();
+    res.render("editarPerfil", { 
+        user, 
+        usuario: req.session.usuario
+    });
+});
+
+// guardar cambios
+router.post("/perfil/editar", verificarSesion, subirFoto(), async (req, res) => {
+
+    const { username, edad, email, telefono, password } = req.body;
+    
+    // Obtener usuario actual
+    const user = await User.findById(req.session.usuario.userId);
+
+    user.username = username;
+    user.edad = edad;
+    user.email = email;
+    user.telefono = telefono;
+
+    if (password && password.trim() !== "") {
+        user.password = password;
+    }
+
+    if (req.file) {
+        
+        if (user.foto && user.foto !== "default.png") {
+            const rutaFoto = path.join("public", "uploads", user.foto);
+            if (fs.existsSync(rutaFoto)) {
+                fs.unlinkSync(rutaFoto);
+            }
+        }
+
+        // Guardar nueva foto
+        user.foto = req.file.filename;
+    }
+
+    // Guardar cambios
+    await user.save();
+
+    res.redirect("/perfil");
+});
+
+
+
+// eliminar cuenta
+router.post("/perfil/eliminar", verificarSesion, async (req, res) => {
+    const user = await User.findById(req.session.usuario.userId);
+
+if (user.foto && user.foto !== "default.png") {
+    const rutaFoto = path.join("public", "uploads", user.foto);
+    if (fs.existsSync(rutaFoto)) fs.unlinkSync(rutaFoto);
+}
+    await User.findByIdAndDelete(req.session.usuario.userId);
+
+    req.session.destroy(() => {
+        res.redirect("/login");
+    });
+
+
+});
+
 
 export default router;
