@@ -6,7 +6,9 @@ export default function subirFoto() {
         filename: function (req, file, cb) {
             cb(null, Date.now() + "-" + file.originalname);
         }
-    });
+    })
 
     return multer({ storage }).single("foto"); // <-- foto única
 }
+
+
