@@ -103,6 +103,7 @@
       animation: rev-block 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
       animation-delay: 1s;
     }
+    
     #onemore span {
       animation-delay: 2s;
     }
@@ -110,6 +111,20 @@
     #onemore.rev-block:after {
       background: #5e239d;
       animation-delay: 1.4s;
+    }
+
+    /* ESTILOS PARA CALIFICACIONES */
+    .calificacion {
+        color: #ffc107;
+        font-size: 14px;
+        margin: 5px 0;
+        font-weight: bold;
+    }
+
+    .sin-calificaciones {
+        color: #6c757d;
+        font-size: 12px;
+        margin: 5px 0;
     }
 
     @keyframes rev-block {
@@ -131,84 +146,143 @@
 </style>
 
 <div class="titulo-animado">
-    <h1 class="rev-block" font-size: 2.5rem;  margin-bottom: 10px; ">Bienvenido a CookLand</h1>
+    <h1 class="rev-block">Bienvenido a CookLand</h1>
     <p class="lead"></p>
 </div>
 
-
 <div class="featured-section mb-5">
-    <h2 class="text-center mb-4" style="color: #FF9494;">Recetas Destacadas</h2>
+    <h2 class="text-center mb-4" style="color: #FF9494;">
+        <% if (recetas && recetas.length > 0) { %>
+            Recetas Mejor Calificadas
+        <% } else { %>
+            Recetas Destacadas
+        <% } %>
+    </h2>
     
     <div class="row g-4">
-       
-        <div class="col-md-6 col-lg-3">
-            <div class="card receta-card">
-                <div class="receta-imagen">
-                <img src="/flan.jpg" alt="Flan Casero" style="width: 100%; height: 100%; object-fit: cover;">
+        <!-- SI HAY RECETAS EN BD, MUESTRA LAS REALES -->
+        <% if (recetas && recetas.length > 0) { %>
+            <% recetas.forEach(receta => { %>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card receta-card">
+                        <div class="receta-imagen">
+                            <% if (receta.foto) { %>
+                                <img src="/images/<%= receta.foto %>" alt="<%= receta.nombre %>" style="width: 100%; height: 100%; object-fit: cover;">
+                            <% } else { %>
+                                <i class="fas fa-utensils"></i>
+                            <% } %>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title"><%= receta.nombre %></h5>
+                            
+                            <!-- CORREGIDO: Texto fijo en lugar de la preparación -->
+                            <p class="card-text">Una deliciosa receta para disfrutar</p>
+                            
+                            <!-- CALIFICACIÓN REAL DESDE BD - CORREGIDO -->
+                            <% 
+                            let promedio = receta.promedioCalificacion || 0;
+                            let totalCalif = receta.totalCalificaciones || 0;
+                            %>
+                            
+                            <% if (promedio > 0) { %>
+                                <div class="calificacion">
+                                    <% 
+                                    let estrellas = '';
+                                    for(let i = 1; i <= 5; i++) {
+                                        if (i <= Math.round(promedio)) {
+                                            estrellas += '★';
+                                        } else {
+                                            estrellas += '☆';
+                                        }
+                                    }
+                                    %>
+                                    <%= estrellas %> (<%= promedio.toFixed(1) %>)
+                                    <small class="text-muted">(<%= totalCalif %> calificaciones)</small>
+                                </div>
+                            <% } else { %>
+                                <div class="sin-calificaciones">⭐ Sin calificaciones aún</div>
+                            <% } %>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="categoria"><%= receta.categoria %></span>
+                                <a href="/receta/<%= receta._id %>" class="btn btn-ver-mas btn-sm">Ver Receta</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <h5 class="card-title">Flan Casero</h5>
-                    <p class="card-text">Un delicioso flan casero con un suave caramelo</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="categoria">Postres</span>
-                        <a href="/agregarReceta" class="btn btn-ver-mas btn-sm">Cocinar</a>
+            <% }); %>
+        <% } else { %>
+            <!-- SI NO HAY RECETAS EN BD, MUESTRA EJEMPLOS -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card receta-card">
+                    <div class="receta-imagen">
+                        <img src="/images/flan.jpg" alt="Flan Casero" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Flan Casero</h5>
+                        <p class="card-text">Un delicioso flan casero con un suave caramelo</p>
+                        <div class="calificacion">★★★★☆ (4.5)</div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="categoria">Postres</span>
+                            <a href="/agregarReceta" class="btn btn-ver-mas btn-sm">Cocinar</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-
-        <div class="col-md-6 col-lg-3">
-            <div class="card receta-card">
-                <div class="receta-imagen">
-                <img src="/ensalada_frutas.jpg" alt="Ensalada de Frutas" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">Ensalada de Frutas</h5>
-                    <p class="card-text">Una refrescante ensalada con frutas de temporada</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="categoria">Ensaladas</span>
-                        <a href="/mostrarRecetas" class="btn btn-ver-mas btn-sm">Ver Recetas</a>
+            <div class="col-md-6 col-lg-3">
+                <div class="card receta-card">
+                    <div class="receta-imagen">
+                        <img src="/images/ensalada_frutas.jpg" alt="Ensalada de Frutas" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Ensalada de Frutas</h5>
+                        <p class="card-text">Una refrescante ensalada con frutas de temporada</p>
+                        <div class="calificacion">★★★★☆ (4.0)</div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="categoria">Ensaladas</span>
+                            <a href="/mostrarRecetas" class="btn btn-ver-mas btn-sm">Ver Recetas</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-6 col-lg-3">
-            <div class="card receta-card">
-                <div class="receta-imagen">
-                <img src="/galletas.jpg" alt="Galletas con Chocolate" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">Galletas con Chocolate</h5>
-                    <p class="card-text">Crujientes galletas con trozos de chocolate</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="categoria">Postres</span>
-                        <a href="/agregarReceta" class="btn btn-ver-mas btn-sm">Cocinar</a>
+            <div class="col-md-6 col-lg-3">
+                <div class="card receta-card">
+                    <div class="receta-imagen">
+                        <img src="/images/galletas.jpg" alt="Galletas con Chocolate" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Galletas con Chocolate</h5>
+                        <p class="card-text">Crujientes galletas con trozos de chocolate</p>
+                        <div class="calificacion">★★★★★ (5.0)</div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="categoria">Postres</span>
+                            <a href="/agregarReceta" class="btn btn-ver-mas btn-sm">Cocinar</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-    
-        <div class="col-md-6 col-lg-3">
-            <div class="card receta-card">
-                <div class="receta-imagen">
-                <img src="/ponche.jpeg" alt="Ponche Navideño" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">Ponche Navideño</h5>
-                    <p class="card-text">Una bebida caliente y festiva con frutas y especias</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="categoria">Bebidas</span>
-                        <a href="/mostrarRecetas" class="btn btn-ver-mas btn-sm">Ver Recetas</a>
+            <div class="col-md-6 col-lg-3">
+                <div class="card receta-card">
+                    <div class="receta-imagen">
+                        <img src="/images/ponche.jpeg" alt="Ponche Navideño" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Ponche Navideño</h5>
+                        <p class="card-text">Una bebida caliente y festiva con frutas y especias</p>
+                        <div class="calificacion">★★★☆☆ (3.5)</div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="categoria">Bebidas</span>
+                            <a href="/mostrarRecetas" class="btn btn-ver-mas btn-sm">Ver Recetas</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        <% } %>
     </div>
 </div>
-
 
 <div class="action-section">
     <div class="row justify-content-center">
