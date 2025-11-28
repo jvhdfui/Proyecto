@@ -12,7 +12,7 @@
 </style>
   </head>
   <body>
-<form action="/editar/<%= receta._id %>" id="formulario" method="POST">
+<form action="/editar/<%= receta._id %>" id="formulario" method="POST" enctype="multipart/form-data">
   <label>Nombre de la receta:</label>
   <input class="form-control mb-3" type="text" name="nombre" id="nombre" 
   value="<%= receta.nombre %>" placeholder="Nombre de la receta">
@@ -90,6 +90,15 @@
   <input class="form-control mb-3" type="url" name="url_video" id="url_video"
   value="<%= receta.url_video %>" 
   placeholder="Ej. https://www.youtube.com/watch?v=a">
+
+  <% if (receta.foto) { %>
+        <label>Foto Actual:</label><br>
+        <img src="/images/<%= receta.foto %>" style="max-width: 150px; margin-bottom: 15px;" alt="Foto actual"><br>
+        <input type="hidden" name="foto_actual" value="<%= receta.foto %>">
+    <% } %>
+
+  <label for="foto">Sube una foto</label>
+    <input type="file" name="fotos" class="form-control mb-3" id="foto">
 
   <button type="submit" class="btn btn-success">Guardar receta</button>
   <button type="reset" class="btn btn-outline-danger">Borrar</button>
