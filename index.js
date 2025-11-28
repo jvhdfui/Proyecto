@@ -5,8 +5,12 @@ import conectarBD from "./db/db.js";
 
 const app = express();
 
+
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); 
 //imagen
 app.use(express.static('public'));
+app.use('/images', express.static('web/images'));
 
 async function conexion() {
   await conectarBD();
