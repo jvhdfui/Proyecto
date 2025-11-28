@@ -54,6 +54,32 @@
     animation-delay: 1.4s;
   }
 
+  /* 🆕 ESTILOS PARA CALIFICACIONES */
+  .calificacion {
+    color: #ffc107;
+    font-size: 14px;
+    margin: 8px 0;
+    font-weight: bold;
+  }
+
+  .sin-calificaciones {
+    color: #6c757d;
+    font-size: 12px;
+    margin: 8px 0;
+  }
+
+  .btn-ver-receta {
+    background: #B95E82;
+    color: white;
+    border: none;
+    margin-bottom: 8px;
+  }
+
+  .btn-ver-receta:hover {
+    background: #9a4a6b;
+    color: white;
+  }
+
   @keyframes rev-block {
     0% { left: 0; width: 0%; }
     50% { left: 0; width: 100%; }
@@ -71,6 +97,11 @@
     }
   }
 
+  .card-img-top {
+    object-fit: cover; 
+    height: 200px;
+  }
+
 </style>
 <div class="container my-4" >
   <div class="titulo-animado">
@@ -81,12 +112,48 @@
     <% contactosBD.forEach(function(receta){ %>
       <div class="col">
         <div class="card h-100 shadow-sm">
-          <% if (receta.imagen) { %>
-            <img src="<%= receta.imagen %>" class="card-img-top" alt="<%= receta.nombre %>">
+          <% if (receta.foto) { %>
+            <img src="/images/<%= receta.foto%>" class="card-img-top" alt="<%= receta.nombre %>">
+          <% } else { %>
+            <img src="/images/placeholder.jpg" class="card-img-top" alt="<%= receta.nombre %>">
           <% } %>
           <div class="card-body d-flex flex-column">
             <h5 class="card-title"><%= receta.nombre %></h5>
             <p class="card-text text-muted"><%= receta.categoria %></p>
+            
+            <!-- 🆕 CALIFICACIÓN - CORREGIDO -->
+            <% 
+            // CORREGIDO: Manejar valores undefined
+            let promedio = receta.promedioCalificacion || 0;
+            let totalCalif = receta.totalCalificaciones || 0;
+            %>
+            
+            <% if (promedio > 0) { %>
+              <div class="calificacion">
+                <% 
+                let estrellas = '';
+                for(let i = 1; i <= 5; i++) {
+                  if (i <= Math.round(promedio)) {
+                    estrellas += '★';
+                  } else {
+                    estrellas += '☆';
+                  }
+                }
+                %>
+                <%= estrellas %> (<%= promedio.toFixed(1) %>)
+                <br>
+                <small class="text-muted">(<%= totalCalif %> calificaciones)</small>
+              </div>
+            <% } else { %>
+              <div class="sin-calificaciones">⭐ Sin calificaciones aún</div>
+            <% } %>
+            
+            <!-- 🆕 BOTÓN VER RECETA -->
+            <a href="/receta/<%= receta._id %>" class="btn btn-ver-receta w-100 mb-2">
+              <i class="fas fa-eye"></i> Ver Receta
+            </a>
+            
+            <!-- BOTONES EXISTENTES -->
             <a href="/editar/<%= receta._id %>" class="btn btn-primary mb-2 w-100">Editar</a>
             <form action="/eliminarReceta/<%= receta._id %>" method="POST" class="mt-auto">
               <button type="submit" class="btn btn-danger w-100">Eliminar</button>
@@ -99,4 +166,3 @@
 </div>
 
 <%- include("templates/pie.ejs") %>
-
