@@ -79,7 +79,7 @@
     <h1 class="rev-block"><span>Compartiendo Cocina</span></h1>
   </div>
 
-  <form action="/agregarReceta" id="formulario" method="POST">
+  <form action="/agregarReceta" id="formulario" method="POST" enctype="multipart/form-data">
     <label>Nombre de la receta:</label>
     <input class="form-control mb-3" type="text" name="nombre" id="nombre" 
     placeholder="Nombre de la receta">
@@ -153,6 +153,9 @@
     <label>Enlace a un video de YouTube:</label>
     <input class="form-control mb-3" type="url" name="url_video" id="url_video" 
     placeholder="Ej. https://www.youtube.com/watch?v=a">
+
+    <label for="foto">Sube una foto</label>
+    <input type="file" name="fotos" class="form-control mb-3" id="foto">
 
     <button type="submit" class="btn btn-success">Guardar receta</button>
     <button type="reset" class="btn btn-outline-danger">Borrar</button>
