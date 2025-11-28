@@ -1,0 +1,398 @@
+<%- include("templates/encabezado.ejs", {titulo: receta.nombre}) %>
+
+<style>
+    body {
+        font-family: 'Open Sans', sans-serif;
+        background-color: #f8f9fa;
+    }
+    
+    .receta-header {
+        background: linear-gradient(135deg, #FFD1D1, #F94F94);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+    }
+    
+    .receta-imagen {
+        max-height: 400px;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .calificacion-section {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .estrella {
+        font-size: 1.5rem;
+        color: #e0e0e0;
+        transition: color 0.2s;
+    }
+    
+    .estrella.activa {
+        color: #ffc107;
+    }
+    
+    .ingredientes-list, .instrucciones-list {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .btn-calificar {
+        background: #7F669D;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        transition: background 0.3s;
+    }
+    
+    .btn-calificar:hover {
+        background: #6a5585;
+        color: white;
+    }
+    
+    .btn-volver {
+        background: #B95E82;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        display: inline-block;
+        transition: background 0.3s;
+    }
+    
+    .btn-volver:hover {
+        background: #9a4a6b;
+        color: white;
+    }
+
+    .estrella-btn {
+        transition: all 0.2s ease;
+    }
+
+    .estrella-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .btn-favorito {
+        transition: all 0.3s ease;
+    }
+</style>
+
+<div class="receta-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-4 fw-bold"><%= receta.nombre %></h1>
+                <!-- CORREGIDO: usar preparacion en lugar de descripcion -->
+                <p class="lead mb-0"><%= receta.preparacion ? receta.preparacion.substring(0, 100) + '...' : 'Deliciosa receta para disfrutar' %></p>
+                <div class="mt-2">
+                    <span class="badge bg-light text-dark me-2"><%= receta.categoria %></span>
+                    <span class="badge bg-light text-dark me-2"><%= receta.tiempo %></span>
+                    <span class="badge bg-light text-dark"><%= receta.dificultad %></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Columna de imagen -->
+        <div class="col-md-6 mb-4">
+            <% if (receta.foto) { %>
+                <img src="/images/<%= receta.foto %>" alt="<%= receta.nombre %>" class="receta-imagen w-100">
+            <% } else { %>
+                <!-- CORREGIDO: Asignación de imágenes por categoría -->
+                <div class="receta-imagen w-100 bg-light d-flex align-items-center justify-content-center">
+                    <% 
+                    let imagenPorCategoria = '';
+                    let categoria = receta.categoria ? receta.categoria.toLowerCase() : '';
+                    
+                    if (categoria.includes('postre') || categoria.includes('dulce')) {
+                        imagenPorCategoria = 'flan.jpg';
+                    } else if (categoria.includes('ensalada')) {
+                        imagenPorCategoria = 'ensalada_frutas.jpg';
+                    } else if (categoria.includes('bebida') || categoria.includes('jugo')) {
+                        imagenPorCategoria = 'ponche.jpeg';
+                    } else {
+                        imagenPorCategoria = 'galletas.jpg';
+                    }
+                    %>
+                    <img src="/images/<%= imagenPorCategoria %>" alt="<%= receta.nombre %>" class="w-100 h-100" style="object-fit: cover; border-radius: 10px;">
+                </div>
+            <% } %>
+        </div>
+        
+        <!-- Columna de información -->
+        <div class="col-md-6">
+            <!-- Sección de calificación -->
+            <div class="calificacion-section">
+                <h3>Calificación</h3>
+                <div class="d-flex align-items-center mb-3">
+                    <div class="me-3">
+                        <% 
+                        // CORREGIDO: Manejar valores undefined
+                        let calificacionPromedio = receta.promedioCalificacion || 0;
+                        let totalCalificaciones = receta.totalCalificaciones || 0;
+                        
+                        for(let i = 1; i <= 5; i++) { 
+                        %>
+                            <span class="estrella <%= i <= Math.round(calificacionPromedio) ? 'activa' : '' %>">★</span>
+                        <% } %>
+                    </div>
+                    <div>
+                        <strong class="fs-4"><%= calificacionPromedio.toFixed(1) %></strong>
+                        <small class="text-muted">(<%= totalCalificaciones %> calificaciones)</small>
+                    </div>
+                </div>
+                
+                <% if (usuario) { %>
+                    <div class="mb-3">
+                        <label class="form-label">Calificar esta receta:</label>
+                        <div class="d-flex mb-2">
+                            <% for(let i = 1; i <= 5; i++) { %>
+                                <button type="button" 
+                                        class="btn btn-outline-warning btn-sm me-1 estrella-btn" 
+                                        data-calificacion="<%= i %>"
+                                        onclick="calificarReceta(<%= i %>)">
+                                    <%= i %> ★
+                                </button>
+                            <% } %>
+                        </div>
+                        <small id="mensaje-calificacion" class="text-success"></small>
+                    </div>
+                <% } else { %>
+                    <p class="text-muted">Inicia sesión para calificar esta receta</p>
+                <% } %>
+            </div>
+            
+            <!-- Información adicional -->
+            <div class="ingredientes-list">
+                <h4>Información</h4>
+                <ul class="list-unstyled">
+                    <li><strong>Tiempo:</strong> <%= receta.tiempo %></li>
+                    <li><strong>Dificultad:</strong> <%= receta.dificultad %></li>
+                    <% if (receta.url_video) { %>
+                        <li>
+                            <strong>Video:</strong> 
+                            <a href="<%= receta.url_video %>" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                Ver video tutorial
+                            </a>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+
+            <!-- 🆕 BOTÓN DE FAVORITOS MEJORADO -->
+            <% if (usuario) { %>
+                <div class="ingredientes-list mt-3">
+                    <h5>Favoritos</h5>
+                    <button id="btnFavorito" class="btn btn-outline-danger btn-favorito">
+                        <i class="far fa-heart"></i> Agregar a Favoritos
+                    </button>
+                    <small id="mensaje-favorito" class="text-success ms-2"></small>
+                </div>
+            <% } %>
+        </div>
+    </div>
+    
+    <!-- Ingredientes -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="ingredientes-list">
+                <h3 class="mb-4">🥕 Ingredientes</h3>
+                <ul class="list-group list-group-flush">
+                    <% if (receta.ingredientes && receta.ingredientes.length > 0) { %>
+                        <% receta.ingredientes.forEach(ingrediente => { %>
+                            <li class="list-group-item"><%= ingrediente %></li>
+                        <% }); %>
+                    <% } else { %>
+                        <li class="list-group-item text-muted">No se especificaron ingredientes</li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Instrucciones -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="instrucciones-list">
+                <h3 class="mb-4">👨‍🍳 Preparación</h3>
+                <% if (receta.preparacion) { %>
+                    <div class="preparacion-content">
+                        <%= receta.preparacion.replace(/\n/g, '<br>') %>
+                    </div>
+                <% } else { %>
+                    <p class="text-muted">No se especificaron instrucciones de preparación</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botón volver -->
+    <div class="row mt-4 mb-5">
+        <div class="col-12 text-center">
+            <a href="/" class="btn-volver me-2">← Volver al Inicio</a>
+            <a href="/mostrarRecetas" class="btn-volver me-2">← Ver Todas las Recetas</a>
+            <% if (usuario) { %>
+                <a href="/favoritos" class="btn-volver">❤️ Mis Favoritos</a>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+// DEBUG: Ver datos de la receta en consola
+console.log('🔍 Datos de la receta:', {
+    id: '<%= receta._id %>',
+    nombre: '<%= receta.nombre %>',
+    promedioCalificacion: <%= receta.promedioCalificacion || 0 %>,
+    totalCalificaciones: <%= receta.totalCalificaciones || 0 %>,
+    calificaciones: <%= JSON.stringify(receta.calificaciones) || '[]' %>,
+    usuariosFavoritos: <%= JSON.stringify(receta.usuariosFavoritos) || '[]' %>,
+    categoria: '<%= receta.categoria %>'
+});
+
+// CORREGIDO: Verificar campos críticos
+if (typeof <%= receta.promedioCalificacion %> === 'undefined') {
+    console.warn('⚠️ promedioCalificacion no definido');
+}
+if (typeof <%= receta.totalCalificaciones %> === 'undefined') {
+    console.warn('⚠️ totalCalificaciones no definido');
+}
+
+// 🆕 SISTEMA DE CALIFICACIONES CON AJAX
+async function calificarReceta(calificacion) {
+    try {
+        console.log('⭐ Enviando calificación:', calificacion);
+        
+        const response = await fetch('/receta/<%= receta._id %>/calificar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ calificacion })
+        });
+
+        const result = await response.json();
+        console.log('📨 Respuesta del servidor:', result);
+        
+        if (result.success) {
+            document.getElementById('mensaje-calificacion').textContent = '¡Calificación enviada! Actualizando...';
+            // Recargar la página para mostrar la nueva calificación
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            document.getElementById('mensaje-calificacion').textContent = 'Error: ' + (result.error || 'Error al calificar');
+            document.getElementById('mensaje-calificacion').className = 'text-danger';
+        }
+    } catch (error) {
+        console.error('❌ Error:', error);
+        document.getElementById('mensaje-calificacion').textContent = 'Error de conexión';
+        document.getElementById('mensaje-calificacion').className = 'text-danger';
+    }
+}
+
+// 🆕 SISTEMA DE FAVORITOS CORREGIDO
+document.addEventListener('DOMContentLoaded', async function() {
+    await inicializarFavoritos();
+});
+
+async function inicializarFavoritos() {
+    const btnFavorito = document.getElementById('btnFavorito');
+    if (!btnFavorito) return;
+
+    try {
+        console.log('🔍 Verificando estado de favoritos...');
+        // Verificar estado inicial de favoritos
+        const response = await fetch(`/receta/<%= receta._id %>/es-favorito`);
+        const data = await response.json();
+        console.log(' Estado de favoritos:', data);
+        
+        actualizarBotonFavorito(data.esFavorito);
+        
+        // Configurar evento del botón
+        btnFavorito.addEventListener('click', async function() {
+            await toggleFavorito();
+        });
+        
+    } catch (error) {
+        console.error('Error al inicializar favoritos:', error);
+    }
+}
+
+async function toggleFavorito() {
+    const btnFavorito = document.getElementById('btnFavorito');
+    const mensajeFavorito = document.getElementById('mensaje-favorito');
+    const esFavorito = btnFavorito.classList.contains('btn-danger');
+
+    try {
+        let response, result;
+        
+        if (esFavorito) {
+            // Eliminar de favoritos
+            console.log(' Eliminando de favoritos...');
+            response = await fetch(`/receta/<%= receta._id %>/favorito`, { 
+                method: 'DELETE' 
+            });
+            result = await response.json();
+            
+            if (result.success) {
+                actualizarBotonFavorito(false);
+                mensajeFavorito.textContent = 'Eliminado de favoritos';
+                mensajeFavorito.className = 'text-success ms-2';
+                setTimeout(() => mensajeFavorito.textContent = '', 2000);
+            }
+        } else {
+            // Agregar a favoritos
+            console.log(' Agregando a favoritos...');
+            response = await fetch(`/receta/<%= receta._id %>/favorito`, { 
+                method: 'POST' 
+            });
+            result = await response.json();
+            
+            if (result.success) {
+                actualizarBotonFavorito(true);
+                mensajeFavorito.textContent = '¡Agregado a favoritos!';
+                mensajeFavorito.className = 'text-success ms-2';
+                setTimeout(() => mensajeFavorito.textContent = '', 2000);
+            }
+        }
+        
+        console.log(' Resultado favorito:', result);
+    } catch (error) {
+        console.error(' Error al cambiar favorito:', error);
+        mensajeFavorito.textContent = 'Error al actualizar favoritos';
+        mensajeFavorito.className = 'text-danger ms-2';
+        setTimeout(() => mensajeFavorito.textContent = '', 2000);
+    }
+}
+
+function actualizarBotonFavorito(esFavorito) {
+    const btn = document.getElementById('btnFavorito');
+    if (esFavorito) {
+        btn.innerHTML = '<i class="fas fa-heart"></i> En Favoritos';
+        btn.classList.remove('btn-outline-danger');
+        btn.classList.add('btn-danger');
+    } else {
+        btn.innerHTML = '<i class="far fa-heart"></i> Agregar a Favoritos';
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-outline-danger');
+    }
+}
+</script>
+
+<%- include("templates/pie.ejs") %>
